@@ -34,4 +34,13 @@ function requireAuth(req, res, next) {
   }
 }
 
-module.exports = { optionalAuth, requireAuth };
+// Autorisation : uniquement le rôle chief (à utiliser après requireAuth)
+// Retourne 403 si l'utilisateur n'est pas chief
+function requireChief(req, res, next) {
+  if (req.user?.role !== 'chief') {
+    return res.status(403).json({ error: 'Rôle chief requis' });
+  }
+  next();
+}
+
+module.exports = { optionalAuth, requireAuth, requireChief };

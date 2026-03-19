@@ -37,9 +37,20 @@ Réponse : `{ user: { id, email, role }, token }` — utiliser le token dans `Au
 
 | Méthode | Route | Description |
 |---------|-------|-------------|
-| POST | `/messages` | Créer un message |
+| POST | `/messages` | Créer un message (auth requise) |
 | GET | `/messages` | Liste des messages |
-| GET | `/messages/:id` | Détail d'un message (auth requise si `lecture_unique`) |
+| GET | `/messages/:id` | Détail (auth requise si `lecture_unique`) |
+
+### Missions (Partie 2)
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| POST | `/missions` | Créer une mission (**chief** uniquement) |
+| GET | `/missions` | Liste des missions |
+| GET | `/missions/:id` | Détail d'une mission |
+| PATCH | `/missions/:id` | Modifier une mission (assignation, etc.) |
+
+Toutes les routes missions nécessitent une authentification. La création est réservée au rôle `chief`. L'assignation (`assignedTo`) doit être un `agent` ou un `chief`.
 
 ### Exemple inscription / connexion
 
@@ -55,10 +66,21 @@ POST /auth/login
 
 ```json
 POST /messages
+Authorization: Bearer <token>
+{ "title": "Titre", "content": "Contenu", "type": "public" }
+```
+
+### Exemple création de mission (chief)
+
+```json
+POST /missions
+Authorization: Bearer <token>
 {
-  "title": "Titre du message",
-  "content": "Contenu du message",
-  "type": "public"
+  "title": "Opération Alpha",
+  "description": "Mission secrète",
+  "status": "pending",
+  "priority": "high",
+  "assignedTo": 2
 }
 ```
 
@@ -68,7 +90,7 @@ POST /messages
 src/
 ├── config/         # Configuration (base de données)
 ├── controllers/    # Logique métier
-├── middlewares/    # Auth JWT (optionalAuth, requireAuth)
+├── middlewares/    # Auth JWT (optionalAuth, requireAuth, requireChief)
 ├── models/         # Modèles Sequelize
 ├── routes/         # Définition des routes
 └── index.js        # Point d'entrée
